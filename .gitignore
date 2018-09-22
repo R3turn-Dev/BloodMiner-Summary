@@ -1,0 +1,6 @@
+# Python default
+.pyc
+__pycahce__
+
+# Hidden directories
+.*/*
