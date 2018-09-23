@@ -11,8 +11,11 @@ _db_config = _config.get("Database")
 app = Flask("BloodCoinGrapher")
 
 
-from graph import graph_api
-app.register_blueprint(graph_api)
+import root
+import graph
+
+app.register_blueprint(root.page)
+app.register_blueprint(graph.graph_api)
 
 
 app.run(

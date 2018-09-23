@@ -1,5 +1,4 @@
-from flask import render_template_string, Blueprint, Response, jsonify
-from json import dumps
+from flask import render_template_string, Blueprint, jsonify
 
 from db import DBConnector
 from settings import Config
@@ -8,10 +7,11 @@ ConfDatabase = Config().get("Database")
 ApiDatabase = DBConnector(ConfDatabase)
 
 
-def render_graph(self, contents: list):
+def render_graph(contents: list, **kwargs):
     return render_template_string(
         open(r"templates/single_graph.html", encoding="UTF-8").read(),
-        data_options=contents
+        data_options=contents,
+        **kwargs
     )
 
 
@@ -35,7 +35,8 @@ def API_GetColumnData(column):
 
     data = [
         [
-            int(t.timestamp() // 1e5 * 1e5),  # Drop under seconds
+            t.timestamp() * 1e3,
+            #int(t.timestamp() // 1e5 * 1e9),  # Drop under seconds
             v
         ] for t, v in data
     ]
