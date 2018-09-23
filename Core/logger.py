@@ -10,7 +10,6 @@ class DBLogger:
         self.database = conf.get("database")
 
         self.makeConn()
-        print(dir(self.conn))
 
     def makeConn(self):
         self.conn = psycopg2.connect(
