@@ -53,17 +53,25 @@ async def timer():
         microsecond=0
     ) + dtime.timedelta(minutes=CheckInterval)
 
+    LastSeek = ""
+
     while client.is_alive:
         await asyncio.sleep(0.1)
         if UpcomingUpdate < dtime.datetime.now():
             UpcomingUpdate += dtime.timedelta(minutes=CheckInterval)
 
-            async with aiohttp.ClientSession() as Session:
-                async with Session.get(_chain_settings.get("summary_uri")) as req:
-                    result = await req.json()
+            try:
+                async with aiohttp.ClientSession() as Session:
+                    async with Session.get(_chain_settings.get("summary_uri")) as req:
+                        LastSeek = await req.text()
+                        result = await req.json()
 
-                    dbLogger.write_log(result['data'])
-                    logger.debug(str(result))
+                        dbLogger.write_log(result['data'])
+                        logger.debug(str(result))
+                        
+            except Exception as ex:
+                logger.warn(repr(ex))
+                logger.warn("Meta " + repr(LastSeek))
 
 
 client.loop.create_task(timer())
