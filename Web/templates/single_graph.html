@@ -1,53 +1,75 @@
 <div class="BC-Graph">
-    <canvas id="{{ chart_name }}" width="600" height="400"></canvas>
-    
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+
+    <div id="{{ chart_name }}" style="height: 400px; min-width: 310px"></div>
     <script>
-    // bar chart data
-    var barData = {
-    labels : [{% for item in chart_labels %}
-                    "{{item}}",
-                {% endfor %}],
-    datasets : [
-        {
-                fillColor: "rgba(151,187,205,0.2)",
-                strokeColor: "rgba(151,187,205,1)",
-                pointColor: "rgba(151,187,205,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(151,187,205,1)",
-                bezierCurve : false,
-                data : [{% for item in chart_values %}
-                        {{ item }},
-                        {% endfor %}]
-        }]
-    }
-        Chart.defaults.global.animationSteps = 50;
-        Chart.defaults.global.tooltipYPadding = 16;
-        Chart.defaults.global.tooltipCornerRadius = 0;
-        Chart.defaults.global.tooltipTitleFontStyle = "normal";
-        Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
-        Chart.defaults.global.animationEasing = "easeOutBounce";
-        Chart.defaults.global.responsive = false;
-        Chart.defaults.global.scaleLineColor = "black";
-        Chart.defaults.global.scaleFontSize = 16;
-    
-    // get bar chart canvas
-    var mychart = document.getElementById("{{ chart_name }}").getContext("2d");
-    
-    steps = 10
-    max = 10
-    // draw bar chart
-    var LineChartDemo = new Chart(mychart).Line(barData, {
-            scaleOverride: true,
-            scaleSteps: steps,
-            scaleStepWidth: Math.ceil(max / steps),
-            scaleStartValue: 0,
-            scaleShowVerticalLines: true,
-            scaleShowGridLines : true,
-            barShowStroke : true,
-            scaleShowLabels: true,
-            bezierCurve: false,
-    
-    });
+        var seriesOptions = [],
+            seriesCounter = 0,
+            names = {{ repr(data_options) }};
+
+        /**
+         * Create the chart when all data is loaded
+         * @returns {undefined}
+         */
+
+        function createChart() {
+
+            Highcharts.stockChart('container', {
+
+                rangeSelector: {
+                    selected: 4
+                },
+
+                yAxis: {
+                    labels: {
+                        formatter: function () {
+                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                        }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }]
+                },
+
+                plotOptions: {
+                    series: {
+                        compare: 'percent',
+                        showInNavigator: true
+                    }
+                },
+
+                tooltip: {
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2,
+                    split: true
+                },
+
+                series: seriesOptions
+            });
+        }
+
+        $.each(names, function (i, name) {
+
+            $.getJSON('/api/data/' + name.toLowerCase(),    function (data) {
+
+                seriesOptions[i] = {
+                    name: name,
+                    data: data
+                };
+
+                // As we're loading the data asynchronously, we don't know what order it will arrive. So
+                // we keep a counter and create the chart when all the data is loaded.
+                seriesCounter += 1;
+
+                if (seriesCounter === names.length) {
+                    createChart();
+                }
+            });
+        });
     </script>
 </div>
