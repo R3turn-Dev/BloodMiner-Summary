@@ -54,7 +54,7 @@ async def timer():
     ) + dtime.timedelta(minutes=CheckInterval)
 
     while client.is_alive:
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
         if UpcomingUpdate < dtime.datetime.now():
             UpcomingUpdate += dtime.timedelta(minutes=CheckInterval)
 
