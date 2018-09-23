@@ -9,6 +9,8 @@ class DBConnector:
         self.password = conf.get("password")
         self.database = conf.get("database")
 
+        self.conn = None
+
         self.makeConn()
 
     def makeConn(self):
@@ -33,3 +35,14 @@ class DBConnector:
 
         self.makeCursor().execute(qstr)
         self.conn.commit()
+
+    def fetch_column(self, column: str):
+        cur = self.makeCursor()
+        try:
+            cur.execute(f"""SELECT "timestamp", "{column}" FROM "APIInfo" ORDER BY "timestamp";""")
+        except psycopg2.ProgrammingError:
+            return True, None
+
+        return False, cur.fetchall()
+
+

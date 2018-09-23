@@ -1,6 +1,5 @@
 from flask import Flask
 
-from db import DBConnector
 from settings import Config
 
 
@@ -12,5 +11,10 @@ _db_config = _config.get("Database")
 app = Flask("BloodCoinGrapher")
 
 
+from graph import graph_api
+app.register_blueprint(graph_api)
 
-app.register_blueprint()
+
+app.run(
+    **_web_config
+)
