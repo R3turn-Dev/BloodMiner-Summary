@@ -3,47 +3,45 @@ from threading import get_ident
 
 
 class DBConnector:
-    def __init__(self, conf):
-        self.host = conf.get("host")
-        self.port = conf.get("port")
-        self.user = conf.get("user")
-        self.password = conf.get("password")
-        self.database = conf.get("database")
+    def __init__(self, conf, initial_connect=True):
+        self.host = conf.get("host", "localhost")
+        self.port = conf.get("port", 5432)
+        self.user = conf.get("user", "postgres")
+        self.pw = conf.get("password", "")
+        self.db = conf.get("database", "postgres")
+
+        self.conn = None
+        self.cursor = None
 
         self.connDict = {}
         self.curDict = {}
 
-        self.makeConn()
+        if initial_connect:
+            self.getConn()
+            self.getCursor()
+
+    def getConn(self):
+        self.conn = psycopg2.connect(
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            password=self.pw,
+            database=self.db
+        )
+
+        self.conn.autocommit = True
+        return self.conn
 
     def getCursor(self):
         thread_id = get_ident().__int__()
 
-        if thread_id not in self.connDict.keys() or self.connDict[thread_id].closed:
-            self.connDict[thread_id] = self.makeConn()
+        if thread_id not in self.connDict.keys():
+            self.connDict[thread_id] = self.getConn()
 
-        if thread_id not in self.curDict.keys() or self.connDict[thread_id].closed:
+        if thread_id not in self.curDict.keys():
             self.curDict[thread_id] = self.connDict[thread_id].cursor()
 
         return self.curDict[thread_id]
-
-    def makeConn(self):
-        self.connDict[get_ident().__int__()] = psycopg2.connect(
-            host=self.host,
-            port=self.port,
-            user=self.user,
-            password=self.password,
-            database=self.database
-        )
-
-        return self.connDict[get_ident().__int__()]
-
-    def write_log(self, data):
-        qstr = """INSERT INTO "APIInfo" ("""
-        qstr += '"' + '", "'.join([str(x) for x in data.keys()]) + '") VALUES ('
-        qstr += "'" + "', '".join([str(x) for x in data.values()]) + "');"
-
-        cur = self.getCursor()
-        cur.execute(qstr)
 
     def fetch_column(self, column: str):
         cur = self.getCursor()
