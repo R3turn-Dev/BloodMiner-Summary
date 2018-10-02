@@ -43,27 +43,34 @@ client = CrawlBot()
 async def timer():
     CheckInterval = _bot_settings.get("check_interval")
 
-    logger.info(" * Checking web every " + str(CheckInterval) + " Minutes")
+    logger.info(" * Checking web every " + str(CheckInterval) + " Seconds")
     dbLogger = DBLogger(_db_settings)
     
     UpcomingUpdate = dtime.datetime.now()
     UpcomingUpdate = UpcomingUpdate.replace(
-        minute=(UpcomingUpdate.minute // CheckInterval) * CheckInterval,
         second=0,
         microsecond=0
-    ) + dtime.timedelta(minutes=CheckInterval)
+    ) + dtime.timedelta(seconds=CheckInterval)
+
+    LastSeek = ""
 
     while client.is_alive:
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
         if UpcomingUpdate < dtime.datetime.now():
             UpcomingUpdate += dtime.timedelta(minutes=CheckInterval)
 
-            async with aiohttp.ClientSession() as Session:
-                async with Session.get(_chain_settings.get("summary_uri")) as req:
-                    result = await req.json()
+            try:
+                async with aiohttp.ClientSession() as Session:
+                    async with Session.get(_chain_settings.get("summary_uri")) as req:
+                        LastSeek = await req.text()
+                        result = await req.json()
 
-                    dbLogger.write_log(result['data'])
-                    logger.debug(str(result))
+                        dbLogger.write_log(result['data'])
+                        logger.debug(str(result))
+                        
+            except Exception as ex:
+                logger.warn(repr(ex))
+                logger.warn("Meta " + repr(LastSeek))
 
 
 client.loop.create_task(timer())
