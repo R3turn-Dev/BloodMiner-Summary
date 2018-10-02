@@ -1,0 +1,58 @@
+<div class="BC-Graph">
+    <div id="{{ chart_name }}" style="height: 400px; min-width: 310px"></div>
+    <script>
+        var seriesOptions = [],
+            seriesCounter = 0,
+            names = {{ data_options | safe }};
+
+        function createChart(chart_name, variables) {
+            Highcharts.stockChart(chart_name, {
+                rangeSelector: {
+                    selected: 4
+                },
+                yAxis: {
+                    labels: {
+                        formatter: function () {
+                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                        }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }]
+                },
+                plotOptions: {
+                    series: {
+                        compare: 'percent',
+                        showInNavigator: true
+                    }
+                },
+                tooltip: {
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2,
+                    split: true
+                },
+                series: []
+            });
+        }
+
+        $.each({{ data_options | safe }}, function (i, name) {
+            $.getJSON('/api/data/' + name,    function (data) {
+
+                seriesOptions[i] = {
+                    name: name,
+                    data: data
+                };
+
+                // As we're loading the data asynchronously, we don't know what order it will arrive. So
+                // we keep a counter and create the chart when all the data is loaded.
+                seriesCounter += 1;
+
+                if (seriesCounter === names.length) {
+                    createChart({{ chart_name }});
+                }
+            });
+        });
+    </script>
+</div>

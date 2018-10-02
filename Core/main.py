@@ -54,6 +54,8 @@ async def timer():
 
     LastSeek = ""
 
+    LastSeek = ""
+
     while client.is_alive:
         await asyncio.sleep(0.1)
         if UpcomingUpdate < dtime.datetime.now():
