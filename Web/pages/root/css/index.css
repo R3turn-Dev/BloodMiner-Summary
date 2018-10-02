@@ -1,0 +1,47 @@
+html, body {
+    margin-bottom: 0;
+}
+
+hr {
+    margin: 0 100px;
+}
+
+.BC-GraphContainer {
+    width: 100%;
+    text-align: center;
+}
+
+.BC-Graph {
+    display: inline-block;
+
+    max-width: 1000px;
+    width: 90vw;
+
+    margin: 20px 0;
+}
+
+/* .BC-Graph-Title::before {
+    content: "- ";
+    margin-right: 10px;
+} */
+
+.BC-Graph-Title {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.BC-Graph-Subtitle {
+    font-size: 0.8em;
+    color: grey;
+}
+
+.footer {
+    position: fixed;
+    width: 100%;
+    font-size: 13px;
+    background-color: white;
+    color: black;
+    text-align: center;
+    bottom: 0;
+    padding-bottom: 0px;
+}
