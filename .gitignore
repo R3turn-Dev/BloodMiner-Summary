@@ -1,5 +1,5 @@
 # Python default
-.pyc
+*.pyc
 __pycahce__
 
 # Hidden directories
@@ -7,3 +7,4 @@ __pycahce__
 
 # Config files
 *.ini
+*.log
