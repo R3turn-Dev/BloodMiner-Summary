@@ -1,5 +1,5 @@
 html, body {
-    margin-bottom: 0;
+    margin-bottom: 30px;
 }
 
 hr {
@@ -43,5 +43,7 @@ hr {
     color: black;
     text-align: center;
     bottom: 0;
-    padding-bottom: 0px;
+    
+    margin: 0 !important;
+    padding: 5px !important;
 }
