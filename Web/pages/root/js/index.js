@@ -1,3 +1,21 @@
+let DataStack = {};
+
+// Collect Data
+function preload(callback) {
+    let elements = ["workerCount", "totalPoint", "totalHashrate", "totalReward", "totalDistributed", "difficulty"],
+        count = elements.length;
+
+    $.each(elements, function(i, name){
+        $.getJSON('/api/data/' + name, function(data){
+            DataStack[name] = data;
+
+            if(!--count) {
+                callback();
+            }
+        })
+    });
+}
+
 function createChart(chart_name, seriesOptions) {
         Highcharts.stockChart(chart_name, {
             time: {
@@ -36,18 +54,23 @@ function createChart(chart_name, seriesOptions) {
 function build(chart_name, variables) {
     var seriesCounter = 0,
         seriesOptions=[];
+
     $.each(variables, function (i, name) {
-        $.getJSON('/api/data/' + name,    function (data) {
+        if(DataStack[name] === undefined) {
+            console.log("Fetching " + name);
+            $.getJSON('/api/data/' + name,    function (data) {
+                DataStack[name] = data;
+            });
+        }
 
-            seriesOptions[i] = {
-                name: name,
-                data: data
-            };
-            seriesCounter += 1;
+        seriesOptions[i] = {
+            name: name,
+            data: DataStack[name]
+        };
+        seriesCounter += 1;
 
-            if (seriesCounter === variables.length) {
-                createChart(chart_name, seriesOptions);
-            }
-        });
+        if (seriesCounter === variables.length) {
+            createChart(chart_name, seriesOptions);
+        }
     });
 }

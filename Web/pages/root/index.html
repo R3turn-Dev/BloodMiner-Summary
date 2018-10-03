@@ -21,6 +21,9 @@
 {{ get_global('navbar.html') | safe }}
 
 <body>
+    <script>
+        var ChartCaller = [];
+    </script>
     <div style="position: absolute; right: 20vw; z-index: 999;">
         <div class="count">페이지가 <label id='countdown'>30</label>초 후에 자동으로 새로고침됩니다.</div>
     </div>
@@ -38,7 +41,7 @@
             </div>
         </div>
     </div>
-    <script>build("chart_1", ["workerCount", "totalPoint", "totalHashrate"]);</script>
+    <script>ChartCaller.push(function(){build("chart_1", ["workerCount", "totalPoint", "totalHashrate"]);});</script>
 
     <hr />
 
@@ -53,7 +56,7 @@
             </div>
         </div>
     </div>
-    <script>build("chart_2", ["totalReward", "totalDistributed"]);</script>
+    <script>ChartCaller.push(function(){build("chart_2", ["totalReward", "totalDistributed"]);});</script>
 
     <hr />
 
@@ -68,7 +71,7 @@
             </div>
         </div>
     </div>
-    <script>build("chart_3", ["workerCount", "difficulty"]);</script>
+    <script>ChartCaller.push(function(){build("chart_3", ["workerCount", "difficulty"]);});</script>
 
 <div class="page-footer footer small" style="position: fixed; width: 100%; bottom: 5px;">
     <div class="footer-copyright text-center">
@@ -83,9 +86,12 @@
 <script>
 $(document).ready(function(){
 	let lb = document.getElementById("countdown");
-	let countDown=parseInt(lb.innerText);
+	let countDown = parseInt(lb.innerText);
 
-	countdown(function(){location.reload();}, countDown);
+    countdown(function(){location.reload();}, countDown);
+
+    // Make Chart
+    preload(function(){$.each(ChartCaller,function(i,v){v();});});
 });
 
 function countdown(callback, c) {
