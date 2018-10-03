@@ -59,7 +59,7 @@ async def timer():
     while client.is_alive:
         await asyncio.sleep(0.1)
         if UpcomingUpdate < dtime.datetime.now():
-            UpcomingUpdate += dtime.timedelta(minutes=CheckInterval)
+            UpcomingUpdate += dtime.timedelta(seconds=CheckInterval)
 
             try:
                 async with aiohttp.ClientSession() as Session:
