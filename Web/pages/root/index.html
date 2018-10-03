@@ -24,7 +24,11 @@
     <script>
         var ChartCaller = [];
     </script>
-    <div style="position: absolute; right: 20vw; z-index: 999;">
+
+    {{ get_global("ad1.html") | safe }}
+
+    
+    <div style="width: 80%; text-align: right;">
         <div class="count">페이지가 <label id='countdown'>30</label>초 후에 자동으로 새로고침됩니다.</div>
     </div>
 
@@ -73,7 +77,9 @@
     </div>
     <script>ChartCaller.push(function(){build("chart_3", ["workerCount", "difficulty"]);});</script>
 
-<div class="page-footer footer small" style="position: fixed; width: 100%; bottom: 5px;">
+    {{ get_global("ad2.html") | safe }}
+
+<div class="page-footer footer small">
     <div class="footer-copyright text-center">
         Created & Hosted by <a href="https://github.com/R3turn-Dev/" target="_blank">R3turn-Dev</a>
         / Copyright ⓒ이은학 2018 All rights reserved.<br/>
@@ -82,16 +88,17 @@
     </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
 $(document).ready(function(){
 	let lb = document.getElementById("countdown");
 	let countDown = parseInt(lb.innerText);
 
-    countdown(function(){location.reload();}, countDown);
-
     // Make Chart
-    preload(function(){$.each(ChartCaller,function(i,v){v();});});
+    preload(function(){
+        $.each(ChartCaller,function(i,v){v();});
+
+        countdown(function(){location.reload();}, countDown);
+    });
 });
 
 function countdown(callback, c) {
