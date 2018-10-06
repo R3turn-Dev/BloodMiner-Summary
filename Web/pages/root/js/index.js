@@ -5,7 +5,7 @@ function preload(callback) {
     let elements = ["workerCount", "totalPoint", "totalHashrate", "totalReward", "totalDistributed", "difficulty"],
         count = elements.length;
 
-    $.each(elements, function(i, name){
+    /* $.each(elements, function(i, name){
         $.getJSON('/api/data/' + name, function(data){
             DataStack[name] = data;
 
@@ -13,6 +13,14 @@ function preload(callback) {
                 callback();
             }
         })
+    }); */
+
+    $.getJSON('/api/data/' + elements.join(","), function(data){
+       $.each(elements, function(i, name){
+           DataStack[name] = data[name];
+
+           if(count === i+1) callback();
+       });
     });
 }
 

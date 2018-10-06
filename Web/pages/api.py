@@ -23,26 +23,30 @@ class API:
         self.ApiDatabase = DBConnector(ConfigDatabase)
 
 
-        @self.parent.route("/data/<column>")
-        def API_GetColumnData(column):
-            err, data = self.ApiDatabase.fetch_column(column)
+        @self.parent.route("/data/<ColumnTargets>")
+        def API_GetColumnData(ColumnTargets):
+            cols = ColumnTargets.split(",")
 
-            if err:
-                return jsonify(
-                    {
-                        "error": "An error was occured while processing your request."
-                    }
-                )
+            Returns = {}
+            for column in cols:
+                err, DBData = self.ApiDatabase.fetch_column(column)
 
-            data = [
-                [
-                    t.timestamp() * 1e3,
-                    #int(t.timestamp() // 1e5 * 1e9),  # Drop under seconds
-                    v
-                ] for t, v in data
-            ]
+                if err:
+                    return jsonify(
+                        {
+                            "error": "An error was occured while processing your request."
+                        }
+                    )
 
-            return jsonify(data)
+                Returns[column] = [
+                    [
+                        t.timestamp() * 1e3,
+                        #int(t.timestamp() // 1e5 * 1e9),  # Drop under seconds
+                        v
+                    ] for t, v in DBData
+                ]
+
+            return jsonify(Returns)
 
 
 def setup(engine):
