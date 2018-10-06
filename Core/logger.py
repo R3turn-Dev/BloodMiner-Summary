@@ -2,7 +2,7 @@ import psycopg2
 from threading import get_ident
 
 
-class DBLogger:
+class DBConnector:
     def __init__(self, conf, initial_connect=True):
         self.host = conf.get("host", "localhost")
         self.port = conf.get("port", 5432)
@@ -13,7 +13,6 @@ class DBLogger:
         self.conn = None
         self.cursor = None
 
-        self.connDict = {}
         self.curDict = {}
 
         if initial_connect:
@@ -35,11 +34,14 @@ class DBLogger:
     def getCursor(self):
         thread_id = get_ident().__int__()
 
-        if thread_id not in self.connDict.keys():
-            self.connDict[thread_id] = self.getConn()
+        if self.conn.closed:
+            for x in self.curDict:
+                self.curDict[x].close()
 
-        if thread_id not in self.curDict.keys():
-            self.curDict[thread_id] = self.connDict[thread_id].cursor()
+            self.getConn()
+
+        if thread_id not in self.curDict or self.curDict[thread_id].closed:
+            self.curDict[thread_id] = self.conn.cursor()
 
         return self.curDict[thread_id]
 
@@ -48,4 +50,9 @@ class DBLogger:
         qstr += '"' + '", "'.join([str(x) for x in data.keys()]) + '") VALUES ('
         qstr += "'" + "', '".join([str(x) for x in data.values()]) + "');"
 
-        self.getCursor().execute(qstr)
+        try:
+            self.getCursor().execute(qstr)
+        except psycopg2.ProgrammingError:
+            return True, None
+        except psycopg2.OperationalError:
+            return self.write_log(data)

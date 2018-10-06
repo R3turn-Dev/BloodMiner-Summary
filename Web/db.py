@@ -13,7 +13,6 @@ class DBConnector:
         self.conn = None
         self.cursor = None
 
-        self.connDict = {}
         self.curDict = {}
 
         if initial_connect:
@@ -35,11 +34,14 @@ class DBConnector:
     def getCursor(self):
         thread_id = get_ident().__int__()
 
-        if thread_id not in self.connDict.keys():
-            self.connDict[thread_id] = self.getConn()
+        if self.conn.closed:
+            for x in self.curDict:
+                self.curDict[x].close()
 
-        if thread_id not in self.curDict.keys():
-            self.curDict[thread_id] = self.connDict[thread_id].cursor()
+            self.getConn()
+
+        if thread_id not in self.curDict or self.curDict[thread_id].closed:
+            self.curDict[thread_id] = self.conn.cursor()
 
         return self.curDict[thread_id]
 
@@ -49,6 +51,8 @@ class DBConnector:
             cur.execute(f"""SELECT "timestamp", "{column}" FROM "APIInfo" ORDER BY "timestamp";""")
         except psycopg2.ProgrammingError:
             return True, None
+        except psycopg2.OperationalError:
+            return self.fetch_column(column)
 
         return False, cur.fetchall()
 
