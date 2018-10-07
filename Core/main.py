@@ -5,7 +5,7 @@ import aiohttp
 import datetime as dtime
 
 from core import CrawlBot
-from logger import DBLogger
+from logger import DBLogger, DiscordLogger as DLogger
 from settings import Config
 
 # Retrieve Settings
@@ -13,6 +13,7 @@ _settings = Config()
 _chain_settings = _settings.get("Chain")
 _bot_settings = _settings.get("Bot")
 _db_settings = _settings.get("Database")
+_hook_settings = _settings.get("Hook")
 
 
 # Setup Logger
@@ -25,15 +26,19 @@ if not "logs" in os.listdir():
 
 FileLogger = logging.FileHandler("./logs/lastest.log")
 StreamLogger = logging.StreamHandler()
+DiscordLogger = DLogger(_hook_settings)
 
 FileLogger.setFormatter(formatter)
 StreamLogger.setFormatter(formatter)
+DiscordLogger.setFormatter(formatter)
 
 FileLogger.setLevel(logging.DEBUG)
 StreamLogger.setLevel(logging.DEBUG)
+DiscordLogger.setLevel(logging.WARNING)
 
 logger.addHandler(FileLogger)
 logger.addHandler(StreamLogger)
+logger.addHandler(DiscordLogger)
 
 
 # Make Bot Client

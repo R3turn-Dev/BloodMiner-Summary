@@ -1,8 +1,15 @@
 import psycopg2
+import logging
+import requests
+import traceback
+import psutil
+import os
+import time
+from datetime import datetime, timedelta
 from threading import get_ident
 
 
-class DBConnector:
+class DBLogger:
     def __init__(self, conf, initial_connect=True):
         self.host = conf.get("host", "localhost")
         self.port = conf.get("port", 5432)
@@ -56,3 +63,73 @@ class DBConnector:
             return True, None
         except psycopg2.OperationalError:
             return self.write_log(data)
+
+
+class DiscordLogger(logging.Handler):
+    def __init__(self, conf):
+        super(DiscordLogger, self).__init__()
+        self.hook = conf.get("uri")
+        self.username = conf.get("username", "Python Logger")
+        self.avatar_url = conf.get("avatar", "https://www.python.org/static/favicon.ico")
+        self.mention = conf.get("mention", "")
+
+    def _get_ip(self):
+        try:
+            return requests.get("http://ipinfo.io/ip").text.replace("\r", "").replace("\n", "")
+        except:
+            return "0.0.0.0"
+
+    def _process_uptime(self):
+        try:
+            return timedelta(seconds=time.time() - psutil.Process(os.getpid()).create_time()).__str__()
+        except:
+            return "0:00:00.000000"
+
+    def _system_uptime(self, *args, **kwargs):
+        try:
+            with open('/proc/uptime', 'r') as f:
+                return str(timedelta(seconds=float(f.readline().split()[0])))
+        except:
+            return "0:00:00.000000"
+
+    def emit(self, record):
+        self.lastest_logging = requests.post(
+            self.hook,
+            json={
+                "content": self.mention if self.mention else "",
+                "username": self.username,
+                "avatar_url": self.avatar_url,
+                "embeds": [
+                    {
+                        "title": "Runtime Reporter",
+                        "description": "Reporting from IP: " + self._get_ip(),
+                        "fields": [
+                            {
+                                "name": "Reporter Info",
+                                "inline": False,
+                                "value": f"""Host: {self._get_ip()}
+                                Process Uptime: {self._process_uptime()}
+                                System Uptime: {self._system_uptime()}"""
+                            },
+                            {
+                                "name": "TraceBack",
+                                "inline": False,
+                                "value": traceback.format_exc()
+                            },
+                            {
+                                "name": "Log Body",
+                                "inline": False,
+                                "value": self.format(record)
+                            }
+                        ],
+                        "footer": {
+                            "text": "Python Logger | " + datetime.now().strftime("%Y%m%dT%H%M%S.%fZ")
+                        }
+                    }
+                ]
+            },
+            headers={
+                "Content-Type": "multipart/form-data"
+            }
+        )
+        return self.lastest_logging
