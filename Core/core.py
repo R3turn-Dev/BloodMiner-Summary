@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 import asyncio
@@ -8,6 +9,19 @@ logger = logging.getLogger("BloodCoinMainCore")
 logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("[%(levelname)-8s] %(filename)s => %(asctime)s | %(message)s")
+
+if not "logs" in os.listdir():
+    os.mkdir("logs")
+
+FileLogger = logging.FileHandler("./logs/lastest.log")
+FileLogger.setFormatter(formatter)
+FileLogger.setLevel(logging.DEBUG)
+logger.addHandler(FileLogger)
+
+StreamLogger = logging.StreamHandler()
+StreamLogger.setFormatter(formatter)
+StreamLogger.setLevel(logging.DEBUG)
+logger.addHandler(StreamLogger)
 
 HookConfig = Config().get("Hook")
 DiscordLogger = DLogger(HookConfig)
