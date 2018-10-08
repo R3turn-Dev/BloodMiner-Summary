@@ -45,10 +45,10 @@ class DBConnector:
 
         return self.curDict[thread_id]
 
-    def fetch_column(self, column: str):
+    def fetch_column(self, table: str, column: str):
         cur = self.getCursor()
         try:
-            cur.execute(f"""SELECT "timestamp", "{column}" FROM "APIInfo" ORDER BY "timestamp";""")
+            cur.execute(f"""SELECT "timestamp", "{column}" FROM "{table}" ORDER BY "timestamp";""")
         except psycopg2.ProgrammingError:
             return True, None
         except psycopg2.OperationalError:

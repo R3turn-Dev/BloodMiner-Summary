@@ -24,6 +24,17 @@ class Root:
                 "index.html"
             )
 
+        @self.parent.route('/backups/<date>')
+        def backup_graph(date: str):
+            if not date.isnumeric():
+                return """<script>alert("Date는 YYYYMMDD를 지키는 정수형이어야 합니다.");history.go(-1);</script>"""
+
+            return sender.render_template(
+                self,
+                "backup.html",
+                date=date
+            )
+
         @self.parent.route("/<any(css, img, js, media):folder>/<path:filename>")
         def statics(folder, filename):
             print(f"{path}/", f"{folder}/{filename}")

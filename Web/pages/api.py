@@ -29,7 +29,39 @@ class API:
 
             Returns = {}
             for column in cols:
-                err, DBData = self.ApiDatabase.fetch_column(column)
+                err, DBData = self.ApiDatabase.fetch_column("APIInfo", column)
+
+                if err:
+                    return jsonify(
+                        {
+                            "error": "An error was occured while processing your request."
+                        }
+                    )
+
+                Returns[column] = [
+                    [
+                        t.timestamp() * 1e3,
+                        #int(t.timestamp() // 1e5 * 1e9),  # Drop under seconds
+                        v
+                    ] for t, v in DBData
+                ]
+
+            return jsonify(Returns)
+
+        @self.parent.route("/data/<date>/<ColumnTargets>")
+        def API_GetOldColumnData(date, ColumnTargets):
+            if not date.isnumeric():
+                return jsonify(
+                    {
+                        "error": "Date must be integer typed (YYYYMMDD)"
+                        }
+                    )
+
+            cols = ColumnTargets.split(",")
+
+            Returns = {}
+            for column in cols:
+                err, DBData = self.ApiDatabase.fetch_column("Backup-"+date, column)
 
                 if err:
                     return jsonify(

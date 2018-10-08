@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>블러드코인 정보 : 이은학</title>
+
+    {{ get_global('analytics.html') | safe }}
+
+    {{ get_global('bootstrap.html') | safe }}
+
+    {{ get_global('font-awesome.html') | safe }}
+
+    {{ get_global('grapher.html') | safe }}
+
+    <script src="../js/index.js"></script>
+    <link rel="stylesheet" href="../css/index.css" />
+
+</head>
+
+{{ get_global('navbar.html') | safe }}
+
+<body>
+    <script>
+        var ChartCaller = [];
+    </script>
+
+    {{ get_global("ad1.html") | safe }}
+
+    
+    <div style="width: 80%; text-align: right;">
+        <div class="count">
+            이 그래프는 <label>{{date}}</label>에 백업된 정보입니다.<br />
+            <a href="/">최신 정보 보러가기</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="BC-GraphContainer">
+            <div class="BC-Graph">
+                <label class="BC-Graph-Title">채굴자 수</label>
+                <label class="BC-Graph-Subtitle">Worker Count</label>
+                <label class="BC-Graph-Title">총 보상 가중치</label>
+                <label class="BC-Graph-Subtitle">Total Point</label>
+                <label class="BC-Graph-Title">총 해쉬레이트</label>
+                <label class="BC-Graph-Subtitle">Total Hashrate</label>
+                <div id="chart_1" style="height: 400px; min-width: 310px"></div>
+            </div>
+        </div>
+    </div>
+    <script>ChartCaller.push(function(){build("chart_1", ["workerCount", "totalPoint", "totalHashrate"]);});</script>
+
+    <hr />
+
+    <div class="card">
+        <div class="BC-GraphContainer">
+            <div class="BC-Graph">
+                <label class="BC-Graph-Title">총 채굴 보상</label>
+                <label class="BC-Graph-Subtitle">totalReward</label>
+                <label class="BC-Graph-Title">총 가중치 보상</label>
+                <label class="BC-Graph-Subtitle">totalDistributed</label>
+                <div id="chart_2" style="height: 400px; min-width: 310px"></div>
+            </div>
+        </div>
+    </div>
+    <script>ChartCaller.push(function(){build("chart_2", ["totalReward", "totalDistributed"]);});</script>
+
+    <hr />
+
+    <div class="card">
+        <div class="BC-GraphContainer">
+            <div class="BC-Graph">
+                <label class="BC-Graph-Title">채굴자 수</label>
+                <label class="BC-Graph-Subtitle">workerCout</label>
+                <label class="BC-Graph-Title">채굴 난이도</label>
+                <label class="BC-Graph-Subtitle">difficulty</label>
+                <div id="chart_3" style="height: 400px; min-width: 310px"></div>
+            </div>
+        </div>
+    </div>
+    <script>ChartCaller.push(function(){build("chart_3", ["workerCount", "difficulty"]);});</script>
+
+    {{ get_global("ad2.html") | safe }}
+
+<div class="page-footer footer small">
+    <div class="footer-copyright text-center">
+        Created & Hosted by <a href="https://github.com/R3turn-Dev/" target="_blank">R3turn-Dev</a>
+        / Copyright ⓒ이은학 2018 All rights reserved.<br/>
+        All program codes are available for everyone on
+        <a href="https://github.com/R3turn-Dev/BloodMiner-Summary" target="_blank">My Github Repository</a>.
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    function preload(callback) {
+        let elements = ["workerCount", "totalPoint", "totalHashrate", "totalReward", "totalDistributed", "difficulty"],
+            count = elements.length;
+
+        /* $.each(elements, function(i, name){
+            $.getJSON('/api/data/' + name, function(data){
+                DataStack[name] = data;
+
+                if(!--count) {
+                    callback();
+                }
+            })
+        }); */
+
+        $.getJSON('/api/data/{{date}}/' + elements.join(","), function(data){
+        $.each(elements, function(i, name){
+            DataStack[name] = data[name];
+
+            if(count === i+1) callback();
+        });
+        });
+    }
+
+    // Make Chart
+    preload(function(){
+        $.each(ChartCaller,function(i,v){v();});
+
+        // 이 페이지는 백업페이지이므로 새로고침을 사용하지 않는다.
+        // countdown(function(){location.reload();}, countDown);
+    });
+});
+
+function countdown(callback, c) {
+	setInterval(function(){
+		if (c == 1){
+			callback();
+			return;
+		}
+		c--;
+
+		document.getElementById("countdown").innerHTML = c;
+		return c;
+	}, 1000);
+}
+</script>
+</body>
+</html>
