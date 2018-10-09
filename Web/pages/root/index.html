@@ -23,13 +23,18 @@
 <body>
     <script>
         var ChartCaller = [];
+        var goCount = true;
     </script>
 
     {{ get_global("ad1.html") | safe }}
 
     
     <div style="width: 80%; text-align: right;">
-        <div class="count">페이지가 <label id='countdown'>30</label>초 후에 자동으로 새로고침됩니다.</div>
+        <div class="count">
+            자동 새로고침: <label id="countdown">30</label>초 
+            <i class="fas fa-play no-display" onclick="toggleCountOn();"></i>
+            <i class="fas fa-pause" onclick="toggleCountOff();"></i>
+        </div>
     </div>
 
     <div class="card">
@@ -47,7 +52,7 @@
     </div>
     <script>ChartCaller.push(function(){build("chart_1", ["workerCount", "totalPoint", "totalHashrate"]);});</script>
 
-    <hr />
+    <hr /> <!--
 
     <div class="card">
         <div class="BC-GraphContainer">
@@ -62,7 +67,7 @@
     </div>
     <script>ChartCaller.push(function(){build("chart_2", ["totalReward", "totalDistributed"]);});</script>
 
-    <hr />
+    <hr />-->
 
     <div class="card">
         <div class="BC-GraphContainer">
@@ -88,6 +93,8 @@
     </div>
 </div>
 
+{{ get_global('anti-adblock.html') | safe }}
+
 <script>
 $(document).ready(function(){
 	let lb = document.getElementById("countdown");
@@ -103,6 +110,8 @@ $(document).ready(function(){
 
 function countdown(callback, c) {
 	setInterval(function(){
+        if(!goCount) return;
+
 		if (c == 1){
 			callback();
 			return;

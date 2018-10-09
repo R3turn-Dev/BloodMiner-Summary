@@ -6,6 +6,10 @@ hr {
     margin: 0 100px;
 }
 
+.no-display {
+    display: none;
+}
+
 .BC-GraphContainer {
     width: 100%;
     text-align: center;

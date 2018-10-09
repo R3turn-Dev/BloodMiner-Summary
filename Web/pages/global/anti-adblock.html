@@ -1,0 +1,31 @@
+<!-- Please be graceful for us-->
+<script>
+    function countBlockedAds(){
+        let Blocked = 0;
+        $(".ad > ins.kakao_ad_area").each(function(k, v){
+            if($(v).css("display") == "none") Blocked += 1; 
+        });
+        return Blocked;
+    }
+
+    setTimeout(
+        function(){
+            if(countBlockedAds()) {
+                try { toggleCountOff(); }
+                finally { }
+
+                $("body").prepend('<style>.modal {display: none; /* Hidden by default */position: fixed; /* Stay in place */z-index: 1; /* Sit on top */left: 0;top: 0;width: 100%; /* Full width */height: 100%; /* Full height */overflow: auto; /* Enable scroll if needed */background-color: rgb(0,0,0); /* Fallback color *background-color: rgba(0,0,0,0.4); /* Black w/ opacity */}/* Modal Content/Box */.modal-content {background-color: #fefefe;margin: 15% auto; /* 15% from the top and centered */padding: 20px;border: 1px solid #888;width: 80%; /* Could be more or less, depending on screen size */}/* The Close Button */.close {color: #aaa;float: right;font-size: 28px;font-weight: bold;}.close:hover,.close:focus {color: black;text-decoration: none;cursor: pointer;}</style>');
+                $("body").prepend('<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span><p>안녕하세요? 운영자입니다.</p><p>이 사이트는 외관에 지장을 주지 않는 배너광고 수익금으로 운영되고 있습니다.</p><p>회원님의 애드블록에 저희 사이트를 예외사이트로 추가하거나, 비활성화 해주시면 감사하겠습니다.</p></div></div>');
+
+                var modal = document.getElementById('myModal'),
+                    span = document.getElementsByClassName("close")[0];
+
+                span.onclick = function() { modal.style.display = "none"; }; 
+                window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
+
+                modal.style.display = "block";
+            }
+        },
+        1000
+    );
+</script>

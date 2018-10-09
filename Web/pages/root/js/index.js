@@ -1,8 +1,22 @@
 let DataStack = {};
 
+function toggleCountOn() {
+    goCount = true;
+    $('.fa-play').addClass('no-display');
+    $('.fa-pause').addClass('no-display')
+        .removeClass('no-display');
+}
+
+function toggleCountOff() {
+    goCount = false;
+    $('.fa-pause').addClass('no-display');
+    $('.fa-play').addClass('no-display')
+        .removeClass('no-display');
+}
+
 // Collect Data
 function preload(callback) {
-    let elements = ["workerCount", "totalPoint", "totalHashrate", "totalReward", "totalDistributed", "difficulty"],
+    let elements = ["workerCount", "totalPoint", "totalHashrate", "difficulty"],
         count = elements.length;
 
     /* $.each(elements, function(i, name){
